@@ -216,6 +216,22 @@ module Resourceful
       end
     end
 
+    def extend_response_for(*actions, &block)
+      raise "Must specify one or more actions for response_for." if actions.empty?
+      raise "Must specify formats to extend response." if block.arity < 1
+
+      response = Response.new
+      block.call response
+
+      actions.each do |action|
+        action = action.to_sym
+        response.formats.each do |(format, proc)|
+          @responses[action].delete_if {|(f, p)| f == format }
+          @responses[action] << [format, proc]
+        end
+      end
+    end
+
     # :call-seq:
     #   publish *formats, options = {}, :attributes => [ ... ]
     #

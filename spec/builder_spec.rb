@@ -183,6 +183,31 @@ describe Resourceful::Builder, " with responses set for several formats" do
   end
 end
 
+describe Resourceful::Builder, " with extending existing responses" do
+  include ControllerMocks
+  before :each do
+    mock_kontroller
+    create_builder
+    @builder.response_for('create') do |f|
+      f.html { 'this will be updated' } 
+      f.js(&should_be_called)
+      f.xml(&should_be_called)
+    end
+    
+    @builder.extend_response_for('create') do |f|
+      f.html(&lambda { 'updated response' })
+      f.yaml(&should_be_called)
+    end
+    @builder.apply
+  end
+
+  it "should update the responses as the :resourceful_responses inheritable_attribute" do
+    responses[:create].map(&:first).should include(:html, :js, :xml, :yaml)
+    responses[:create].map(&:last).each(&:call)
+    responses[:create].assoc(:html)[1].call.should == 'updated response'
+  end
+end
+
 describe Resourceful::Builder, " with a response set for the default format" do
   include ControllerMocks
   before :each do
