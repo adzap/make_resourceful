@@ -88,7 +88,7 @@ module Resourceful
         @current_object ||= if plural?
           current_model.find(params[:id])
         else
-          parent_object.send(instance_variable_name.singularize)
+          parent_object.send(instance_variable_name.singularize) || raise(ActiveRecord::RecordNotFound)
         end
       end
 

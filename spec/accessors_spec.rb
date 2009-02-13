@@ -90,6 +90,11 @@ describe Resourceful::Default::Accessors, "#current_object on a singular control
     @parent.expects(:post).returns(@object)
     @controller.current_object.should == @object
   end
+
+  it "should raise an error if object is nil" do
+    @parent.expects(:post).returns(nil)
+    lambda { @controller.current_object }.should raise_error(ActiveRecord::RecordNotFound)
+  end
 end
 
 describe Resourceful::Default::Accessors, "#load_object" do
